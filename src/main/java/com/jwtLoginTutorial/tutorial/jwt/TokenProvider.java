@@ -24,9 +24,10 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class TokenProvider {
-    private static final String AUTHORITIES_KEY = "auth";                     // 토큰 생성과 검증을 위해 쓰임
-    private static final String BEARER_TYPE     = "bearer";                   // 토큰 생성과 검증을 위해 쓰임
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;
+    private static final String AUTHORITIES_KEY = "auth";                          // 토큰 생성과 검증을 위해 쓰임
+    private static final String BEARER_TYPE     = "bearer";                        // 토큰 생성과 검증을 위해 쓰임
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;           // 30분
+    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7; // 일
     private final Key key;
 
     // annotation으로 yml에 있는 secret key를 가져온 다음 Decode함
@@ -51,6 +52,8 @@ public class TokenProvider {
 
         Date tokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
 
+        // access token 생성
+        Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
@@ -58,10 +61,19 @@ public class TokenProvider {
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
 
+        //refresh token 생성
+        String refreshToken = Jwts.builder()
+                .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRE_TIME))
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+
+
+
         return TokenDto.builder()
                 .grantType(BEARER_TYPE)
                 .accessToken(accessToken)
-                .tokenExpiresIn(tokenExpiresIn.getTime())
+                .accessTokenExpiresIn(accessTokenExpiresIn.getTime())
+                .refreshToken(refreshToken)
                 .build();
     }
 

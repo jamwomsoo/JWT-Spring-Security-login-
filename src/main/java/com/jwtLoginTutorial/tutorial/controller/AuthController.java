@@ -1,8 +1,10 @@
 package com.jwtLoginTutorial.tutorial.controller;
 
+import antlr.Token;
 import com.jwtLoginTutorial.tutorial.dto.MemberRequestDto;
 import com.jwtLoginTutorial.tutorial.dto.MemberResponseDto;
 import com.jwtLoginTutorial.tutorial.dto.TokenDto;
+import com.jwtLoginTutorial.tutorial.dto.TokenRequestDto;
 import com.jwtLoginTutorial.tutorial.repository.MemberRepository;
 import com.jwtLoginTutorial.tutorial.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<TokenDto> login(@RequestBody MemberRequestDto requestDto){
         return ResponseEntity.ok(authService.login(requestDto));
+    }
+
+    @PostMapping("/reissue")
+    public ResponseEntity<TokenDto> reIssue(@RequestBody TokenRequestDto tokenRequestDto){
+        return ResponseEntity.ok(authService.reIssue(tokenRequestDto));
     }
 
 }
